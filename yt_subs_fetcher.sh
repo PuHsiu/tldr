@@ -38,7 +38,11 @@ generate_subtitles() {
     local video_file="$1"
     local output_file="$2"
 
-    whisper --model small --output_format txt "${video_file}" > whisper-$$.log 2>&1
+    if [ "$BOOST" = 1 ]; then
+        local boost_opt="--best_of 1 --beam_size 1"
+    fi
+
+    whisper --model small --output_format txt ${boost_opt} "${video_file}" > whisper-$$.log 2>&1
 }
 
 # Function to convert video to mp3 using ffmpeg

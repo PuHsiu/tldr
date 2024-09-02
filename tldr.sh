@@ -7,6 +7,7 @@ export FORCE_SPEACH_TO_TEXT=0
 export INTERACTIVE_MODE=0
 export SHOW_PROMPT=0
 export PBCOPY=0
+export BOOST=0
 
 llm="./llm_adoptor/ollama.sh"
 
@@ -86,7 +87,7 @@ interactive_mode(){
     local video_identifier="$1"
     local subtitle_name="$2"
     local subtitle_file="$3"
-    local subtitle_content=$(cat "$subtitle_file")
+    local subtitle_content=$(cat "./$subtitle_file")
 
     result=$($llm summarize_by_llm "$video_identifier" "$subtitle_name" "$subtitle_file")
 
@@ -122,6 +123,35 @@ interactive_mode(){
     done
 }
 
+copy_to_clipboard() {
+    if [ "$copy_hint" = "--pbcopy" ]; then
+        pre_content=""
+        post_content=""
+    elif [ "$copy_hint" = "tldr" ]; then
+        pre_content="'''"
+        post_content="
+        ''' 
+        總結三括號中的內文
+        "
+    elif [ "$copy_hint" = "goodeye" ]; then
+        pre_content="'''"
+        post_content="
+        '''
+        總結三括號中關於經濟、股市、市場、產業等主題；
+        並以列表列出討論到的主題
+        "
+    fi
+
+    subtitle_content=$(cat "./${subtitle_file}")
+    content="
+        ${pre_content}
+        ${subtitle_content}
+        ${post_content}
+    "
+
+    echo -n "${content}" | grep "^[^0-9]" | pbcopy
+}
+
 trap "exitfn" INT
 
 video_urls=()
@@ -144,8 +174,12 @@ for i in "$@"; do
     --show-prompt)
       export SHOW_PROMPT=1
       ;;
-    --pbcopy)
+    --pbcopy|--pbcopy=*)
       export PBCOPY=1
+      copy_hint="${i#*=}"
+      ;;
+    --boost)
+      export BOOST=1
       ;;
     *)
       ;;
@@ -164,16 +198,15 @@ for idx in ${!video_urls[@]}; do
     video_identifier="$(echo -n $video_url | sed -E 's/.*[?&]v=([^&]+).*/\1/')"
 
     subtitle_meta=$(./yt_subs_fetcher.sh fetch_subtitles "$video_identifier" "$video_url")
-    echo -n "$subtitle_meta" >&2
     subtitle_name=$(echo -n "$subtitle_meta" | jq -r ".title")
     subtitle_file=$(echo -n "$subtitle_meta" | jq -r ".rename")
 
     if [ "$INTERACTIVE_MODE" = "1" ]; then
         interactive_mode "$video_identifier" "$subtitle_name" "$subtitle_file"
     elif [ "$PBCOPY" = "1" ]; then
-        echo "Content prepared, press any key to pbcopy ... "
+        echo -ne "Content prepared, press \033[1;32mEnter\033[0m to pbcopy ... "
         read any
-        cat ${subtitle_file} | grep "^[^0-9]" | pbcopy
+        copy_to_clipboard "${subtitle_file}"
     fi
 done;
 

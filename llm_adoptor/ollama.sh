@@ -28,7 +28,7 @@ summarize_by_llm() {
     local video_identifier="$1"
     local subtitle_name="$2"
     local input_file="$3"
-    local input_file_content=$(cat "$input_file")
+    local input_file_content=$(cat "./$input_file")
 
     # update_progress "${video_identifier}" summarize
 
@@ -49,7 +49,7 @@ discuss_with_llm() {
     local discussion=""
     local video_identifier="$1"
     local subtitle_file="$2"
-    local subtitle_content=$(cat "$subtitle_file")
+    local subtitle_content=$(cat "./$subtitle_file")
 
     llm_prompt="
     source: '''
