@@ -7,6 +7,7 @@ command -v jq >/dev/null 2>&1 || { echo "jq is required but not installed. Abort
 command -v ffmpeg >/dev/null 2>&1 || { echo "ffmpeg is required but not installed. Aborting."; exit 1; }
 command -v whisper >/dev/null 2>&1 || { echo "whisper is required but not installed. Aborting."; exit 1; }
 
+source ./config.sh
 
 cleanup=(whisper-$$.log ffmpeg-$$.log)
 
@@ -37,8 +38,9 @@ debug(){
 generate_subtitles() {
     local video_file="$1"
     local output_file="$2"
+    local boost=$( [ "$BOOST" = "" ] && $(get_config "${config_key_boost_whisper}") || "$BOOST" )
 
-    if [ "$BOOST" = 1 ]; then
+    if [ "$boost" = "1" ]; then
         local boost_opt="--best_of 1 --beam_size 1"
     fi
 

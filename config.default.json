@@ -1,0 +1,7 @@
+{
+    "llm_adoptor": "ollama",
+    "boost": {
+        "whisper": "0"
+    },
+    "llm_model" :"gemma:2b"
+}

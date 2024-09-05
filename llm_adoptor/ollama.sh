@@ -3,7 +3,9 @@
 # Check if required tools are installed
 command -v ollama >/dev/null 2>&1 || { echo "ollama is required but not installed. Aborting."; exit 1; }
 
-llm_model=gemma2:2b
+source "./config.sh"
+
+llm_model=$(get_config "${config_key_llm_model}")
 
 show_prompt() {
     if [ "${SHOW_PROMPT}" = "0" ]; then

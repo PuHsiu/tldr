@@ -3,13 +3,20 @@
 # Check if required tools are installed
 command -v jq >/dev/null 2>&1 || { echo "jq is required but not installed. Aborting."; exit 1; }
 
+source "./config.sh"
+
 export FORCE_SPEACH_TO_TEXT=0
 export INTERACTIVE_MODE=0
 export SHOW_PROMPT=0
 export PBCOPY=0
-export BOOST=0
 
-llm="./llm_adoptor/ollama.sh"
+llm_adoptor=$(get_config "${config_key_llm_adoptor}")
+
+if [ "$llm_adoptor" = "ollama" ]; then
+    llm="./llm_adoptor/ollama.sh"
+else
+    llm="echo"
+fi
 
 # TODO: update progress for each file
 # mgmt a struct, and flush all each times.
@@ -158,10 +165,6 @@ video_urls=()
 
 for i in "$@"; do
   case $i in
-    # -e=*|--extension=*)
-    #   EXTENSION="${i#*=}"
-    #   shift # past argument=value
-    #   ;;
     --force-stt)
       export FORCE_SPEACH_TO_TEXT=1
       ;;
@@ -179,7 +182,7 @@ for i in "$@"; do
       copy_hint="${i#*=}"
       ;;
     --boost)
-      export BOOST=1
+      export BOOST="1"
       ;;
     *)
       ;;
