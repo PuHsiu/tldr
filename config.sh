@@ -9,7 +9,7 @@ DEFAULT_CONFIG_FILE="./config.default.json"
 
 get_config(){
     key="$1"
-    default_val="$(jq -r \'$key\' \"$DEFAULT_CONFIG_FILE\")"
+    default_val=`jq -r "$key" "${DEFAULT_CONFIG_FILE}" `
     jq -r "$key // \"${default_val}\"" "$CONFIG_FILE"
 }
 
