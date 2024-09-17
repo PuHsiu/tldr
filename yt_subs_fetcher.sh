@@ -52,11 +52,10 @@ convert_to_mp3() {
     local input_file="$1"
     local output_file="$2"
     
-    ffmpeg -i "$input_file" -vn -acodec libmp3lame -q:a 2 "$output_file" > ffmpeg-$$.log 2>&1
+    ffmpeg -y -i "$input_file" -vn -acodec libmp3lame -q:a 2 "$output_file" > ffmpeg-$$.log 2>&1
 }
 
 # FIXME: Video Stream like https://www.youtube.com/watch?v=OzxcVB40YXo will mis-download the chatroom record, not vidoe subtitles
-# FIXME: ffmpeg ask overwrite (y/n) if file exist
 
 fetch_subtitles(){
     local video_identifier="$1"
